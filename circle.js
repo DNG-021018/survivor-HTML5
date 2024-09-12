@@ -24,10 +24,10 @@ export class Circle extends GameObject {
   }
 
   circleUpdate(context) {
-    if (this.x > innerWidth - 50 || this.x < 40) {
+    if (this.x - this.radius > innerWidth || this.x - this.radius < 10) {
       this.dx = -this.dx;
     }
-    if (this.y > innerHeight - 50 || this.y < 40) {
+    if (this.y - this.radius > innerHeight || this.y - this.radius < 10) {
       this.dy = -this.dy;
     }
 

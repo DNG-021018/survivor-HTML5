@@ -9,15 +9,33 @@
         padding: 0;
         margin: 0;
       }
+      #canvas {
+        cursor: none;
+      }
     </style>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    <div class="box">
-      <canvas id="canvas"></canvas>
+    <div id="modalEl" class="fixed inset-0 flex items-center justify-center">
+      <div class="bg-white max-w-md w-full p-6 text-center">
+        <h1 class="text-4xl font-bold leading-none" style="color: red">
+          Game over
+        </h1>
+        <div>
+          <button
+            id="playBtn"
+            class="bg-blue-500 text-white w-full text-2xl font-bold py-3 mt-10 rounded-full"
+          >
+            Play
+          </button>
+        </div>
+      </div>
     </div>
+
+    <canvas id="canvas"></canvas>
   </body>
   <script type="module" src="circle.js"></script>
-  <script type="module" src="rect.js"></script>
+  <script type="module" src="player.js"></script>
   <script type="module" src="GameObject.js"></script>
   <script type="module" src="canvas.js"></script>
 </html>
