@@ -15,7 +15,7 @@ const modalEl = document.querySelector("#modalEl");
 
 //obstacle
 let circlesArray = [];
-var lengthObs = 5;
+var lengthObs = 100;
 var speedObs = 3;
 var radiusObs = 30;
 var timeElapsed = 0; // Biến để theo dõi thời gian trôi qua
