@@ -18,7 +18,7 @@ let circlesArray = [];
 var lengthObs = 100;
 var speedObs = 3;
 var radiusObs = 30;
-var timeElapsed = 0; // Biến để theo dõi thời gian trôi qua
+var timeElapsed = 0;
 
 //player
 var player = {
@@ -40,7 +40,7 @@ function awake() {
   time = startingTime * 60;
   lastTime;
   lastTime = performance.now();
-  timeElapsed = 0; // Đặt lại biến đếm thời gian
+  timeElapsed = 0;
   player.color = "white";
   setTimeout(() => {
     createObstacle();
