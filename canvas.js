@@ -7,7 +7,7 @@ var canvas;
 var context;
 canvas = document.getElementById("canvas");
 canvas.width = innerWidth;
-canvas.height = innerHeight - 3.1;
+canvas.height = innerHeight;
 canvas.style.background = "#c3c3c3";
 context = canvas.getContext("2d");
 const playBtn = document.querySelector("#playBtn");
