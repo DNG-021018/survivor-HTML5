@@ -11,11 +11,11 @@ canvas.height = innerHeight - 3.1;
 canvas.style.background = "#c3c3c3";
 context = canvas.getContext("2d");
 const playBtn = document.querySelector("#playBtn");
-const modalEl = document.querySelector("#modalEl");
+const gameoverUI = document.querySelector("#modalEl");
 
 //obstacle
 let circlesArray = [];
-var lengthObs = 100;
+var lengthObs = 50;
 var speedObs = 3;
 var radiusObs = 30;
 var timeElapsed = 0;
@@ -32,6 +32,7 @@ var player = {
 var startingTime = 5;
 var time = startingTime * 60;
 var lastTime;
+var timeAwake = 1
 
 // awake
 function awake() {
@@ -44,7 +45,7 @@ function awake() {
   player.color = "white";
   setTimeout(() => {
     createObstacle();
-  }, 4000);
+  }, timeAwake);
 }
 
 //update
@@ -92,7 +93,7 @@ function updateCountdown() {
   );
 
   if (minutes <= 0 && seconds <= 0) {
-    modalEl.style.display = "flex";
+    gameoverUI.style.display = "flex";
     cancelAnimationFrame(animationID);
   }
 }
@@ -119,20 +120,16 @@ function createObstacle() {
     var radius = (Math.random() + 0.5) * radiusObs;
     var color = getRandomColorHex();
 
-    for (var j = 0; j < circlesArray.length; j++) {
-      if (
-        getDistance(
-          player.xPos,
-          circlesArray[j].x,
-          player.yPos,
-          circlesArray[j].y
-        ) -
-          circlesArray[j].radius +
-          player.radius <=
-        2
-      ) {
-        cirX = Math.random() * canvas.width;
-        cirY = Math.random() * canvas.height;
+    if (i != 0) {
+      for (var j = 0; j < circlesArray.length; j++) {
+        //check if obstacle overlap player
+        //check if obstacle overlap each other
+        if (getDistance(player.xPos, cirX, player.yPos, cirY) - (circlesArray[j].radius + player.radius) <= 10 ||
+          getDistance(cirX, circlesArray[j].x, cirY, circlesArray[j].y) - (circlesArray[j].radius * 3) <= 0) {
+          cirX = Math.random() * canvas.width;
+          cirY = Math.random() * canvas.height;
+          j = -1;
+        }
       }
     }
 
@@ -158,21 +155,18 @@ function generatePlayer() {
   rect.drawPlayer(context);
 
   circlesArray.forEach(function (circles) {
-    if (
-      getDistance(player.xPos, circles.x, player.yPos, circles.y) <=
-      circles.radius + player.radius
-    ) {
+    if (getDistance(player.xPos, circles.x, player.yPos, circles.y) <= circles.radius + player.radius) {
       rect.isColliding = true;
     }
 
     if (rect.isColliding) {
-      modalEl.style.display = "flex";
+      gameoverUI.style.display = "flex";
       cancelAnimationFrame(animationID);
     }
   });
 }
 
-//Collider
+//Collision
 function getDistance(x1, x2, y1, y2) {
   var xDis = x2 - x1;
   var yDis = y2 - y1;
@@ -185,5 +179,5 @@ playBtn.addEventListener("click", function () {
   awake();
   update();
   generateObstacle();
-  modalEl.style.display = "none";
+  gameoverUI.style.display = "none";
 });
