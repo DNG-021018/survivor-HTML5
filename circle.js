@@ -1,7 +1,7 @@
 import { GameObject } from "./GameObject.js";
 
 export class Circle extends GameObject {
-  constructor(x, dx, y, dy, radius, color) {
+  constructor(x, dx, y, dy, radius, color, mass) {
     super();
     this.x = x;
     this.dx = dx;
@@ -9,6 +9,7 @@ export class Circle extends GameObject {
     this.dy = dy;
     this.radius = radius;
     this.color = color;
+    this.mass = mass;
   }
 
   drawCircle(ctx) {
@@ -24,10 +25,10 @@ export class Circle extends GameObject {
   }
 
   circleUpdate(context) {
-    if (this.x - this.radius > innerWidth || this.x - this.radius < 10) {
+    if (this.x + this.radius >= innerWidth || this.x - this.radius <= 0) {
       this.dx = -this.dx;
     }
-    if (this.y - this.radius > innerHeight || this.y - this.radius < 10) {
+    if (this.y + this.radius >= innerHeight || this.y - this.radius <= 0) {
       this.dy = -this.dy;
     }
 
