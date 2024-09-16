@@ -13,9 +13,25 @@ context = canvas.getContext("2d");
 const playBtn = document.querySelector("#playBtn");
 const gameoverUI = document.querySelector("#modalEl");
 
+//audio
+var backgroundTheme = new Audio()
+backgroundTheme.src = "./Assets/music/theme.wav"
+backgroundTheme.loop = true;
+backgroundTheme.volume = 0.5;
+
+var duckTheme = new Audio()
+duckTheme.src = "./Assets/music/duck.mp4"
+duckTheme.loop = false;
+duckTheme.volume = 0.5;
+
+var winTheme = new Audio()
+winTheme.src = "./Assets/music/win.wav"
+winTheme.loop = false;
+winTheme.volume = 1;
+
 //obstacle
 var circlesArray = [];
-var lengthObs = 50;
+var lengthObs = 100;
 var speedObs = 3;
 var radiusObs = 30;
 var timeElapsed = 0;
@@ -25,7 +41,7 @@ var player = {
   radius: 10,
   xPos: innerWidth / 2,
   yPos: innerHeight / 2,
-  color: "white",
+  color: undefined,
 };
 
 //time
@@ -36,6 +52,10 @@ var timeAwake = 4000
 
 // awake
 function awake() {
+  if (backgroundTheme == null || duckTheme == null) {
+    console.log("Khong tim thay am thanh")
+    return;
+  }
   circlesArray = [];
   startingTime = 5;
   time = startingTime * 60;
@@ -95,6 +115,9 @@ function updateCountdown() {
   if (minutes <= 0 && seconds <= 0) {
     gameoverUI.style.display = "flex";
     cancelAnimationFrame(animationID);
+    backgroundTheme.pause()
+    winTheme.currentTime = 0
+    winTheme.play()
   }
 }
 
@@ -115,9 +138,9 @@ function createObstacle() {
   for (var i = 0; i < lengthObs; i++) {
     let cirX = Math.random() * (canvas.width - 2 * radiusObs) + radiusObs;
     let cirY = Math.random() * (canvas.height - 2 * radiusObs) + radiusObs;
-    let dx = (Math.random() - 0.5) * speedObs;
-    let dy = (Math.random() - 0.5) * speedObs;
-    let radius = (Math.random() + 0.5) * radiusObs;
+    let dx = 0.1 + (Math.random() - 0.5) * speedObs;
+    let dy = 0.1 + (Math.random() - 0.5) * speedObs;
+    let radius = (Math.random() + 0.6) * radiusObs;
     let mass = radius;
     let color = getRandomColorHex();
 
@@ -126,8 +149,7 @@ function createObstacle() {
         //check if obstacle overlap player
         //check if obstacle overlap each other
         if (getDistance(player.xPos, cirX, player.yPos, cirY) - (circlesArray[j].radius + player.radius) <= 10 ||
-          getDistance(cirX, circlesArray[j].x, cirY, circlesArray[j].y) - (circlesArray[j].radius * 3) <= 0
-        ) {
+          getDistance(cirX, circlesArray[j].x, cirY, circlesArray[j].y) - (circlesArray[j].radius * 3) <= 0) {
           cirX = Math.random() * (canvas.width - 2 * radiusObs) + radiusObs;
           cirY = Math.random() * (canvas.height - 2 * radiusObs) + radiusObs;
           j = -1;
@@ -165,6 +187,9 @@ function generatePlayer() {
     }
 
     if (rect.isColliding) {
+      backgroundTheme.pause()
+      duckTheme.currentTime = 0;
+      duckTheme.play();
       gameoverUI.style.display = "flex";
       cancelAnimationFrame(animationID);
     }
@@ -175,39 +200,43 @@ function generatePlayer() {
 function getDistance(x1, x2, y1, y2) {
   let xDis = x2 - x1;
   let yDis = y2 - y1;
-  let result = Math.sqrt(Math.pow(xDis, 2) + Math.pow(yDis, 2));
+  let result = Math.sqrt((xDis * xDis) + (yDis * yDis));
   return result;
 }
-function collisionPhysics(obj1, obj2) {
-  let vCollision = { x: obj2.x - obj1.x, y: obj2.y - obj1.y };
-  let distance = getDistance(obj1.x, obj2.x, obj1.y, obj2.y);
 
-  // Nếu hai đối tượng không va chạm, không làm gì cả
+function collisionPhysics(obj1, obj2) {
+  let vCollision = {
+    x: obj2.x - obj1.x,
+    y: obj2.y - obj1.y
+  };
+  let distance = getDistance(obj1.x, obj2.x, obj1.y, obj2.y);
+  let vCollisionNorm = {
+    x: vCollision.x / distance,
+    y: vCollision.y / distance
+  };
+  let vRelativeVelocity = {
+    x: obj1.dx - obj2.dx,
+    y: obj1.dy - obj2.dy
+  };
+  let speed = vRelativeVelocity.x * vCollisionNorm.x + vRelativeVelocity.y * vCollisionNorm.y;
+
+  // no collision no event
   if (distance <= 0 || distance >= obj1.radius + obj2.radius) {
     return;
   }
-
-  // Tính toán vCollisionNorm
-  let vCollisionNorm = { x: vCollision.x / distance, y: vCollision.y / distance };
-
-  // Tính toán vận tốc tương đối
-  let vRelativeVelocity = { x: obj1.dx - obj2.dx, y: obj1.dy - obj2.dy };
-  let speed = vRelativeVelocity.x * vCollisionNorm.x + vRelativeVelocity.y * vCollisionNorm.y;
 
   if (speed <= 0) {
     return;
   }
 
-  // Tính toán lực tác động (impulse)
   let impulse = 2 * speed / (obj1.mass + obj2.mass);
-
-  // Điều chỉnh vận tốc của obj1 và obj2 sau va chạm
+  // adjust speed of obj1 and obj2 after collided
   obj1.dx -= (impulse * obj2.mass * vCollisionNorm.x);
   obj1.dy -= (impulse * obj2.mass * vCollisionNorm.y);
   obj2.dx += (impulse * obj1.mass * vCollisionNorm.x);
   obj2.dy += (impulse * obj1.mass * vCollisionNorm.y);
 
-  // Điều chỉnh lại vị trí của obj1 và obj2 để không chồng lấn
+  //check if obstacle overlap each other
   let overlap = 0.5 * (obj1.radius + obj2.radius - distance);
   obj1.x -= overlap * vCollisionNorm.x;
   obj1.y -= overlap * vCollisionNorm.y;
@@ -221,4 +250,6 @@ playBtn.addEventListener("click", function () {
   update();
   generateObstacle();
   gameoverUI.style.display = "none";
+  backgroundTheme.currentTime = 0;
+  backgroundTheme.play()
 });

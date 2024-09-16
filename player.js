@@ -19,5 +19,6 @@ export class Player extends GameObject {
 
     ctx.strokeStyle = "Black";
     ctx.stroke();
+
   }
 }
