@@ -1,4 +1,4 @@
-import { Circle } from "./circle.js";
+import { Duck } from "./circle.js";
 import { Player } from "./player.js";
 
 ("use strict");
@@ -11,16 +11,17 @@ canvas.height = innerHeight;
 canvas.style.background = "#c3c3c3";
 context = canvas.getContext("2d");
 const playBtn = document.querySelector("#playBtn");
+const exitBtn = document.querySelector("#exitBtn");
 const gameoverUI = document.querySelector("#modalEl");
 
 //audio
 var backgroundTheme = new Audio()
 backgroundTheme.src = "./Assets/music/theme.wav"
 backgroundTheme.loop = true;
-backgroundTheme.volume = 0.5;
+backgroundTheme.volume = 0.1;
 
 var duckTheme = new Audio()
-duckTheme.src = "./Assets/music/duck.mp4"
+duckTheme.src = "./Assets/music/duck.m4a"
 duckTheme.loop = false;
 duckTheme.volume = 0.5;
 
@@ -31,9 +32,9 @@ winTheme.volume = 1;
 
 //obstacle
 var circlesArray = [];
-var lengthObs = 100;
+var lengthObs = 60;
 var speedObs = 3;
-var radiusObs = 30;
+var radiusObs = 40;
 var timeElapsed = 0;
 
 //player
@@ -53,7 +54,7 @@ var timeAwake = 4000
 // awake
 function awake() {
   if (backgroundTheme == null || duckTheme == null) {
-    console.log("Khong tim thay am thanh")
+    console.log("cannot found the audio")
     return;
   }
   circlesArray = [];
@@ -64,7 +65,7 @@ function awake() {
   timeElapsed = 0;
   player.color = "white";
   setTimeout(() => {
-    createObstacle();
+    createObstacle(lengthObs);
   }, timeAwake);
 }
 
@@ -92,6 +93,11 @@ function updateCountdown() {
       circles.dx *= 1.11;
       circles.dy *= 1.11;
     });
+
+    if (circlesArray.length <= Math.round(lengthObs / 2)) {
+      createObstacle(Math.round(lengthObs / 2));
+    }
+
     timeElapsed = 0;
   }
 
@@ -121,28 +127,15 @@ function updateCountdown() {
   }
 }
 
-//random color
-function getRandomColorHex() {
-  const letters = "0123456789ABCDEF";
-  let color = "#";
-  for (let i = 0; i < 6; i++) {
-    if (color != player.color || color != canvas.style.background) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-  }
-  return color;
-}
-
 //generate Obstacle
-function createObstacle() {
-  for (var i = 0; i < lengthObs; i++) {
+function createObstacle(length) {
+  for (var i = 0; i < length; i++) {
     let cirX = Math.random() * (canvas.width - 2 * radiusObs) + radiusObs;
     let cirY = Math.random() * (canvas.height - 2 * radiusObs) + radiusObs;
-    let dx = 0.1 + (Math.random() - 0.5) * speedObs;
-    let dy = 0.1 + (Math.random() - 0.5) * speedObs;
-    let radius = (Math.random() + 0.6) * radiusObs;
+    let dx = (Math.random() - 0.5) * speedObs;
+    let dy = (Math.random() - 0.5) * speedObs;
+    let radius = (Math.random() + 0.7) * radiusObs;
     let mass = radius;
-    let color = getRandomColorHex();
 
     if (i != 0) {
       for (var j = 0; j < circlesArray.length; j++) {
@@ -156,7 +149,7 @@ function createObstacle() {
         }
       }
     }
-    circlesArray.push(new Circle(cirX, dx, cirY, dy, radius, color, mass));
+    circlesArray.push(new Duck(cirX, dx, cirY, dy, radius, mass));
   }
 }
 
@@ -164,8 +157,17 @@ function generateObstacle() {
   for (var i = 0; i < circlesArray.length; i++) {
     circlesArray[i].circleUpdate(context);
 
+    if (circlesArray[i].radius >= 100) {
+      splitObject(circlesArray[i]);
+    }
+
     for (var j = i + 1; j < circlesArray.length; j++) {
       collisionPhysics(circlesArray[i], circlesArray[j])
+
+      let isMerge = Math.random() < 0.2 ? true : false;
+      if (isMerge) {
+        mergeObj(circlesArray[i], circlesArray[j], circlesArray);
+      }
     }
   }
 }
@@ -244,6 +246,45 @@ function collisionPhysics(obj1, obj2) {
   obj2.y += overlap * vCollisionNorm.y;
 }
 
+function mergeObj(obj1, obj2, array) {
+  if (obj1.radius == obj2.radius) return;
+
+  if (getDistance(obj1.x, obj2.x, obj1.y, obj2.y) <= obj1.radius + obj2.radius) {
+    if (obj1.radius > obj2.radius) {
+      obj1.radius += 10;
+      obj1.mass = obj1.radius
+      let index = array.indexOf(obj2)
+      array.splice(index, 1);
+
+    } else if (obj1.radius < obj2.radius) {
+      obj2.radius += 10;
+      obj2.mass = obj2.radius
+      let index = array.indexOf(obj1)
+      array.splice(index, 1);
+    }
+  }
+}
+
+function splitObject(object) {
+  const numberOfChildren = 4;
+  let childRadius = (Math.random() + 0.7) * radiusObs;
+  const speed = 2;
+
+  for (let i = 0; i < numberOfChildren; i++) {
+    const angle = (i * (2 * Math.PI)) / numberOfChildren;
+    const dx = speed * Math.cos(angle);
+    const dy = speed * Math.sin(angle);
+
+    const child = new Duck(object.x, dx, object.y, dy, childRadius, childRadius);
+    circlesArray.push(child);
+  }
+
+  const index = circlesArray.indexOf(object);
+  if (index > -1) {
+    circlesArray.splice(index, 1);
+  }
+}
+
 //UI
 playBtn.addEventListener("click", function () {
   awake();
@@ -252,4 +293,8 @@ playBtn.addEventListener("click", function () {
   gameoverUI.style.display = "none";
   backgroundTheme.currentTime = 0;
   backgroundTheme.play()
+});
+
+exitBtn.addEventListener("click", function () {
+  window.close();
 });

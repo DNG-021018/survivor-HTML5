@@ -16,14 +16,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    <div id="modalEl" class="fixed inset-0 flex items-center justify-center">
-      <div class="bg-white max-w-md w-full p-6 text-center">
-        <h1 class="text-4xl font-bold leading-none" style="color: red">Game over</h1>
-        <div>
-          <button id="playBtn" class="bg-blue-500 text-white w-full text-2xl font-bold py-3 mt-10 rounded-full">Play</button>
+    <div class="relative">
+      <!-- // main menu -->
+      <div id="modalEl" class="fixed inset-0 flex items-center justify-center">
+        <div class="bg-white max-w-md w-full p-6 text-center">
+          <h1 class="text-4xl font-bold leading-none" style="color: red">Game over</h1>
+          <div>
+            <div>
+              <button id="playBtn" class="bg-blue-500 text-white w-full text-2xl font-bold py-3 mt-10 rounded-full">Play</button>
+            </div>
+            <button id="exitBtn" class="bg-blue-500 text-white w-full text-2xl font-bold py-3 mt-10 rounded-full">Exit</button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- // pause button -->
+      <div id="pauseEl" class="absolute right-0 w-[30px] h-[30px] flex items-center justify-center mr-[20px] mt-[20px]">
+        <div class="">
+          <img src="./Assets/Icons/Gear.png" class="h-auto object-cover border-none outline-none w-[30px] h-[30px]" style="image-rendering: pixelated" />
+        </div>
+      </div>
+
+      <!-- // pause menu -->
+      <!-- <div id="modalEl" class="fixed inset-0 flex items-center justify-center">
+        <div class="bg-white max-w-md w-full p-6 text-center">
+          <h1 class="text-4xl font-bold leading-none" style="color: red">Pause menu</h1>
+          <div class="flex">
+            <button id="resumeBtn" class="bg-blue-500 text-white w-full text-2xl font-bold py-3 mt-10">p</button>
+            <button id="optionBtn" class="bg-blue-500 text-white w-full text-2xl font-bold py-3 mt-10">m</button>
+            <button id="optionBtn" class="bg-blue-500 text-white w-full text-2xl font-bold py-3 mt-10">e</button>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
     <canvas id="canvas"></canvas>
   </body>
   <script type="module" src="circle.js"></script>
