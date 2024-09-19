@@ -1,4 +1,4 @@
-import { Duck } from "./circle.js";
+import { Duck } from "./duck.js";
 import { Player } from "./player.js";
 
 ("use strict");
@@ -10,32 +10,61 @@ canvas.width = innerWidth;
 canvas.height = innerHeight;
 canvas.style.background = "#c3c3c3";
 context = canvas.getContext("2d");
-const playBtn = document.querySelector("#playBtn");
-const exitBtn = document.querySelector("#exitBtn");
-const gameoverUI = document.querySelector("#modalEl");
+
+//UI
+const audioOn = "./Assets/Icons/Icon_SoundOn.png"
+const audioOff = "./Assets/Icons/Icon_SoundOff.png"
+
+const mainMenuUI = document.querySelector("#menuEl");
+const mainMenuUI_playBtn = document.querySelector("#playBtn");
+const mainMenuUI_optBtn = document.querySelector("#optBtn");
+const mainMenuUI_exitBtn = document.querySelector("#exitBtn");
+
+const optionUI = document.querySelector("#optionEl");
+const optionUI_audioOtpBtn = document.querySelector("#audioOtpBtn");
+const optionUI_audioSettingImage = document.querySelector("#audioSettingImage");
+const optionUI_homeOtpBtn = document.querySelector("#homeOtpBtn");
+
+// const settingUI = document.querySelector("#pauseEl");
+// const settingUI_settingBtn = document.querySelector("#settingBtn");
+
+// const pauseChildElUI = document.querySelector("#pauseChildEl");
+// const pauseChildElUI_resumeBtn = document.querySelector("#resumeBtn");
+// const pauseChildElUI_audioBtn = document.querySelector("#audioBtn");
+// const pauseChildElUI_homeBtn = document.querySelector("#homeBtn");
 
 //audio
 var backgroundTheme = new Audio()
 backgroundTheme.src = "./Assets/music/theme.wav"
 backgroundTheme.loop = true;
-backgroundTheme.volume = 0.1;
+var backgroundThemeRegular = 0.1;
+backgroundTheme.volume = backgroundThemeRegular;
 
 var duckTheme = new Audio()
 duckTheme.src = "./Assets/music/duck.m4a"
 duckTheme.loop = false;
-duckTheme.volume = 0.5;
+var duckThemeThemeRegular = 0.5;
+duckTheme.volume = duckThemeThemeRegular;
 
 var winTheme = new Audio()
 winTheme.src = "./Assets/music/win.wav"
 winTheme.loop = false;
-winTheme.volume = 1;
+var winThemeThemeRegular = 1;
+winTheme.volume = winThemeThemeRegular;
 
 //obstacle
 var circlesArray = [];
-var lengthObs = 60;
+var cirX;
+var cirY;
+var dx;
+var dy;
+var radius;
+var mass;
+var lengthObs = 50;
 var speedObs = 3;
-var radiusObs = 40;
+var radiusObs = 30;
 var timeElapsed = 0;
+var limitRadius = 100;
 
 //player
 var player = {
@@ -94,7 +123,7 @@ function updateCountdown() {
       circles.dy *= 1.11;
     });
 
-    if (circlesArray.length <= Math.round(lengthObs / 2)) {
+    if (circlesArray.length <= lengthObs / 2) {
       createObstacle(Math.round(lengthObs / 2));
     }
 
@@ -119,7 +148,7 @@ function updateCountdown() {
   );
 
   if (minutes <= 0 && seconds <= 0) {
-    gameoverUI.style.display = "flex";
+    mainMenuUI.style.display = "flex";
     cancelAnimationFrame(animationID);
     backgroundTheme.pause()
     winTheme.currentTime = 0
@@ -130,12 +159,12 @@ function updateCountdown() {
 //generate Obstacle
 function createObstacle(length) {
   for (var i = 0; i < length; i++) {
-    let cirX = Math.random() * (canvas.width - 2 * radiusObs) + radiusObs;
-    let cirY = Math.random() * (canvas.height - 2 * radiusObs) + radiusObs;
-    let dx = (Math.random() - 0.5) * speedObs;
-    let dy = (Math.random() - 0.5) * speedObs;
-    let radius = (Math.random() + 0.7) * radiusObs;
-    let mass = radius;
+    cirX = Math.random() * (canvas.width - 2 * radiusObs) + radiusObs;
+    cirY = Math.random() * (canvas.height - 2 * radiusObs) + radiusObs;
+    dx = (Math.random() - 0.5) * speedObs;
+    dy = (Math.random() - 0.5) * speedObs;
+    radius = (Math.random() + 0.8) * radiusObs;
+    mass = radius;
 
     if (i != 0) {
       for (var j = 0; j < circlesArray.length; j++) {
@@ -157,7 +186,7 @@ function generateObstacle() {
   for (var i = 0; i < circlesArray.length; i++) {
     circlesArray[i].circleUpdate(context);
 
-    if (circlesArray[i].radius >= 100) {
+    if (circlesArray[i].radius >= limitRadius) {
       splitObject(circlesArray[i]);
     }
 
@@ -192,7 +221,7 @@ function generatePlayer() {
       backgroundTheme.pause()
       duckTheme.currentTime = 0;
       duckTheme.play();
-      gameoverUI.style.display = "flex";
+      mainMenuUI.style.display = "flex";
       cancelAnimationFrame(animationID);
     }
   });
@@ -267,7 +296,7 @@ function mergeObj(obj1, obj2, array) {
 
 function splitObject(object) {
   const numberOfChildren = 4;
-  let childRadius = (Math.random() + 0.7) * radiusObs;
+  let childRadius = (Math.random() + 0.8) * radiusObs;
   const speed = 2;
 
   for (let i = 0; i < numberOfChildren; i++) {
@@ -286,15 +315,69 @@ function splitObject(object) {
 }
 
 //UI
-playBtn.addEventListener("click", function () {
+mainMenuUI_playBtn.addEventListener("click", function () {
   awake();
   update();
   generateObstacle();
-  gameoverUI.style.display = "none";
+  mainMenuUI.style.display = "none";
+  // settingUI.style.display = "flex";
   backgroundTheme.currentTime = 0;
   backgroundTheme.play()
 });
 
-exitBtn.addEventListener("click", function () {
+mainMenuUI_optBtn.addEventListener("click", function () {
+  mainMenuUI.style.display = "none";
+  optionUI.style.display = "flex";
+});
+
+mainMenuUI_exitBtn.addEventListener("click", function () {
   window.close();
 });
+
+var checkAudio = true;
+optionUI_audioOtpBtn.addEventListener("click", function () {
+  if (checkAudio) {
+    backgroundTheme.volume = 0;
+    duckTheme.volume = 0;
+    winTheme.volume = 0;
+    optionUI_audioSettingImage.src = audioOff
+    checkAudio = !checkAudio
+  } else if (!checkAudio) {
+    backgroundTheme.volume = backgroundThemeRegular;
+    duckTheme.volume = duckThemeThemeRegular;
+    winTheme.volume = winThemeThemeRegular;
+    optionUI_audioSettingImage.src = audioOn
+    checkAudio = !checkAudio
+  }
+})
+
+optionUI_homeOtpBtn.addEventListener("click", function () {
+  mainMenuUI.style.display = "flex";
+  optionUI.style.display = "none";
+})
+
+// settingUI_settingBtn.addEventListener("click", function () {
+//   pauseChildElUI.style.display = "flex";
+//   window.cancelAnimationFrame(animationID)
+// })
+
+// pauseChildElUI_resumeBtn.addEventListener("click", function () {
+//   window.requestAnimationFrame(animationID)
+//   pauseChildElUI.style.display = "none";
+// })
+
+// pauseChildElUI_audioBtn.addEventListener("click", function () {
+//   if (checkAudio) {
+//     backgroundTheme.volume = 0;
+//     duckTheme.volume = 0;
+//     winTheme.volume = 0;
+//     optionUI_audioSettingImage.src = audioOff
+//     checkAudio = !checkAudio
+//   } else if (!checkAudio) {
+//     backgroundTheme.volume = backgroundThemeRegular;
+//     duckTheme.volume = duckThemeThemeRegular;
+//     winTheme.volume = winThemeThemeRegular;
+//     optionUI_audioSettingImage.src = audioOn
+//     checkAudio = !checkAudio
+//   }
+// })
