@@ -1,4 +1,3 @@
-//audio
 export var backgroundTheme = new Audio()
 backgroundTheme.src = "./Assets/music/theme.wav"
 backgroundTheme.loop = true;

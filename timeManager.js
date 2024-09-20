@@ -1,6 +1,6 @@
 import { getArray, createObstacle } from "./gameManager.js";
 import { getAnimationID, getLengthObs } from "./index.js";
-import { mainMenuUI } from "./gameUI.js";
+import { mainMenuUI } from "./uiManager.js";
 import * as audio from "./audio.js"
 
 var startingTime;
@@ -30,7 +30,7 @@ export function setTimeElapsed(newTimeElapsed) {
 //Countdown
 export function updateCountdown(context) {
     let currentTime = performance.now();
-    let deltaTime = (currentTime - lastTime) / 500;
+    let deltaTime = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
     time -= deltaTime;
     timeElapsed += deltaTime;

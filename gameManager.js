@@ -1,21 +1,16 @@
 import { Duck } from "./duck.js";
 import { Player } from "./player.js";
-import * as audio from "./audio.js";
-import { mainMenuUI } from "./gameUI.js";
-import * as physics from "./physics.js";
+import { mainMenuUI } from "./uiManager.js";
 import { getAnimationID, getContext } from "./index.js";
+import * as audio from "./audio.js";
+import * as physics from "./physics.js";
 
 //obstacle
-export var duckArray = [];
-var cirX;
-var cirY;
-var dx;
-var dy;
-var radius;
-var mass;
+var duckArray = [];
+var cirX, cirY, dx, dy, radius, mass;
 var speedObs = 3;
 var radiusObs = 30;
-var limitRadius = 100;
+var limitRadius = 80;
 
 //player
 var player = {
@@ -60,7 +55,7 @@ export function createObstacle(length) {
     }
 }
 
-export function generateObstacle(context) {
+export function generateObstacle() {
     for (var i = 0; i < duckArray.length; i++) {
         duckArray[i].duckUpdate();
         // if obstacle to big, it will split 
@@ -85,9 +80,9 @@ window.addEventListener("mousemove", function (event) {
     player.yPos = event.y - player.radius / 2;
 });
 
-export function generatePlayer(context) {
+export function generatePlayer() {
     let rect = new Player(player.xPos, player.yPos, player.radius, player.color);
-    rect.drawPlayer(context);
+    rect.drawPlayer(getContext());
 
     duckArray.forEach(function (circles) {
         if (physics.getDistance(player.xPos, circles.x, player.yPos, circles.y) <= circles.radius + player.radius) {

@@ -10,9 +10,11 @@ canvas.height = innerHeight;
 canvas.style.background = "#c3c3c3";
 var context;
 context = canvas.getContext("2d");
-var lengthObs = 50;
+
+//game value
+var lengthObs = 55;
 var timeAwake = 4000
-var startingTime = 1;
+var startingTime = 5;
 var time = startingTime * 60;
 var timeElapsed = 0;
 var animationID;
@@ -47,3 +49,5 @@ export function update() {
   gameManager.generatePlayer(context);
   updateCountdown(context);
 }
+
+
