@@ -1,7 +1,7 @@
 import { GameObject } from "./GameObject.js";
 
 export class Duck extends GameObject {
-  constructor(x, dx, y, dy, radius, mass) {
+  constructor(x, dx, y, dy, radius, mass, context) {
     super();
     this.x = x;
     this.dx = dx;
@@ -15,17 +15,18 @@ export class Duck extends GameObject {
     this.frame = 0;
     this.gameFrame = 0;
     this.staggerFrames = 5;
+    this.context = context;
   }
 
-  drawCircle(ctx) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.closePath();
+  drawDuck() {
+    this.context.beginPath();
+    this.context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    this.context.closePath();
 
     this.image.src = "./Assets/DuckAnimations/runAnimation.png"
-    ctx.imageSmoothingEnabled = false;
+    this.context.imageSmoothingEnabled = false;
 
-    ctx.drawImage(
+    this.context.drawImage(
       this.image,
       0 + this.width * this.frame, 0,
       this.width, this.height,
@@ -34,7 +35,7 @@ export class Duck extends GameObject {
     )
   }
 
-  circleUpdate(context) {
+  duckUpdate() {
     if (this.x + this.radius >= innerWidth || this.x - this.radius <= 0) {
       this.dx = -this.dx;
     }
@@ -44,7 +45,7 @@ export class Duck extends GameObject {
 
     this.x += this.dx;
     this.y += this.dy;
-    this.drawCircle(context);
+    this.drawDuck(this.context);
     if (this.gameFrame % this.staggerFrames == 0) {
       if (this.frame < 5) this.frame++;
       else this.frame = 0;
